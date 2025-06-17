@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Pencarian Buku Modern</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="container">
+    <h1>📚 Pencarian Buku</h1>
+
+    <div class="search-panel">
+      <input type="text" id="searchInput" placeholder="Cari berdasarkan judul, penulis, dll..." />
+      <div class="filter-options">
+        <label><input type="radio" name="filter" value="title" checked> Judul</label>
+        <label><input type="radio" name="filter" value="author"> Penulis</label>
+        <label><input type="radio" name="filter" value="publisher"> Penerbit</label>
+        <label><input type="radio" name="filter" value="titleYear"> Judul & Tahun</label>
+        <input type="number" id="yearInput" placeholder="Tahun (misal 2018)" min="1900" max="2100">
+        <button id="resetBtn">🔄 Reset</button>
+      </div>
+    </div>
+
+    <div id="resultCount" class="info-text"></div>
+    <div id="noResult" class="info-text hidden">⚠ Tidak ada buku ditemukan.</div>
+
+    <div class="books-container" id="booksContainer"></div>
+  </div>
+
+  <script>
+    const books = [
+      { title: "Menguasai Pemrograman Berorientasi Objek", author: "Ade Rahmat Iskandar", publisher: "Informatika", year: "2020" },
+      { title: "Dasar-Dasar Pemrograman dengan .NET", author: "Ade Rahmat Iskandar", publisher: "Informatika", year: "2019" },
+      { title: "Metodologi Pengembangan Sistem Informasi", author: "Samatij Sarosa", publisher: "Indeks", year: "2017" },
+      { title: "Struktur Data", author: "Rosa A.S", publisher: "Modula", year: "2018" }
+    ];
+
+    const searchInput = document.getElementById("searchInput");
+    const yearInput = document.getElementById("yearInput");
+    const resultCount = document.getElementById("resultCount");
+    const noResult = document.getElementById("noResult");
+    const booksContainer = document.getElementById("booksContainer");
+    const resetBtn = document.getElementById("resetBtn");
+
+    function displayBooks(filteredBooks) {
+      booksContainer.innerHTML = "";
+      noResult.classList.add("hidden");
+
+      if (filteredBooks.length === 0) {
+        resultCount.textContent = "";
+        noResult.classList.remove("hidden");
+        return;
+      }
+
+      resultCount.textContent = `${filteredBooks.length} buku ditemukan`;
+
+      filteredBooks.forEach(book => {
+        const div = document.createElement("div");
+        div.className = "book-card";
+        div.innerHTML = `
+          <h3>${book.title}</h3>
+          <p><strong>Penulis:</strong> ${book.author}</p>
+          <p><strong>Penerbit:</strong> ${book.publisher}</p>
+          <p><strong>Tahun:</strong> ${book.year}</p>
+        `;
+        booksContainer.appendChild(div);
+      });
+    }
+
+    function filterBooks() {
+      const keyword = searchInput.value.toLowerCase();
+      const selected = document.querySelector('input[name="filter"]:checked').value;
+      const year = yearInput.value;
+      let result = [];
+
+      if (selected === "title") {
+        result = books.filter(b => b.title.toLowerCase().includes(keyword));
+      } else if (selected === "author") {
+        result = books.filter(b => b.author.toLowerCase().includes(keyword));
+      } else if (selected === "publisher") {
+        result = books.filter(b => b.publisher.toLowerCase().includes(keyword));
+      } else if (selected === "titleYear") {
+        result = books.filter(b =>
+          b.title.toLowerCase().includes(keyword) && b.year === year
+        );
+      }
+
+      displayBooks(result);
+    }
+
+    function resetFilter() {
+      searchInput.value = "";
+      yearInput.value = "";
+      document.querySelector('input[value="title"]').checked = true;
+      displayBooks(books);
+      resultCount.textContent = "";
+      noResult.classList.add("hidden");
+    }
+
+    // Initial view
+    displayBooks(books);
+
+    // Event listeners
+    searchInput.addEventListener("input", filterBooks);
+    yearInput.addEventListener("input", filterBooks);
+    document.querySelectorAll('input[name="filter"]').forEach(r => r.addEventListener("change", filterBooks));
+    resetBtn.addEventListener("click", resetFilter);
+  </script>
+
+</body>
+</html>
